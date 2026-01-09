@@ -43,7 +43,7 @@ Niri uses **KDL** (a document language) for configuration. The main configuratio
 - **Window rules**: Per-window behavior overrides (lines 362-368)
 - **Startup**: Launches `qs -c noctalia-shell` on startup (line 293)
 
-The Niri config includes a custom color theme via `include "./noctalia.kdl"` at line 650.
+The Niri config uses a modular KDL include system. Color themes are defined in `noctalia.kdl` and included via `include "./noctalia.kdl"` at the end of `config.kdl`. This separates structural configuration from theming.
 
 ### Noctalia (Desktop Shell)
 
@@ -90,6 +90,33 @@ The theme file (`.emacs.d/themes/noctalia-theme.el`) provides extensive syntax h
 
 ## Common Operations
 
+### Deploying Configuration
+
+The repository includes a `deploy` script for managing dotfile symlinks (similar to GNU Stow):
+
+```bash
+# Deploy all dotfiles to home directory
+./deploy install
+
+# Dry run to see what would be done
+./deploy install -n
+
+# Show deployment status
+./deploy status
+
+# Remove symlinks and restore backups
+./deploy undeploy
+
+# Verbose mode
+./deploy install -v
+```
+
+The deploy script:
+- Creates symlinks from `.config/`, `.emacs.d/` to `~/.config/`, `~/.emacs.d`
+- Downloads wallpapers from `wallpapers.txt` to `~/Pictures/Wallpapers/`
+- Backs up existing files before replacing them
+- Can restore backups when undeploying
+
 ### Reloading Configurations
 
 After making changes:
@@ -122,6 +149,26 @@ The `.gitignore` excludes sensitive configuration files:
 - Auto-generated files (`.elc`, backup files)
 
 Never commit files containing API keys, passwords, or personal tokens.
+
+## Keybindings
+
+Niri uses `Mod` as the primary modifier (Super on TTY, Alt in windowed mode). Keybindings are defined in `.config/niri/config.kdl`:
+
+- **Mod+T**: Open Ghostty terminal
+- **Mod+D**: Open fuzzel app launcher
+- **Mod+Q**: Close window
+- **Mod+O**: Toggle overview
+- **Mod+H/J/K/L** or Arrow keys: Focus windows/columns
+- **Mod+Ctrl+H/J/K/L**: Move windows/columns
+- **Mod+1-9**: Focus workspace by index
+- **Mod+Ctrl+1-9**: Move column to workspace
+- **Mod+R**: Cycle preset column widths
+- **Mod+F**: Maximize column
+- **Mod+Shift+F**: Fullscreen window
+- **Mod+V**: Toggle floating
+- **Mod+W**: Toggle tabbed column display
+- **Print/Ctrl+Print/Alt+Print**: Screenshot (screen/window)
+- **Media keys**: Volume, brightness, playback control (works when locked)
 
 ## Technology Stack
 
