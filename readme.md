@@ -1,4 +1,4 @@
-# my-archlinux-payloads
+# arch-dotfiles
 
 > **Powered by [Claude Code](https://claude.ai/code)** — A personal Arch Linux desktop configuration crafted with AI assistance.
 
