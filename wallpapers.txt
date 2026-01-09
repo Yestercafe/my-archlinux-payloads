@@ -1,0 +1,10 @@
+# Wallpapers to download during deployment
+# One URL per line, comments start with #
+# Files will be downloaded to ~/Pictures/Wallpapers
+# Existing files are skipped on subsequent runs
+
+# Example wallpaper sources (add your own URLs below):
+# https://example.com/wallpaper.jpg
+# https://images.unsplash.com/photo-1234567890
+
+https://i.pximg.net/img-original/img/2025/08/13/09/54/51/133824298_p0.jpg

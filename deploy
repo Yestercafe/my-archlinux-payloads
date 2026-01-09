@@ -183,6 +183,75 @@ deploy_root() {
     done
 }
 
+# Download wallpapers from list file
+deploy_wallpapers() {
+    local wallpaper_list="$REPO_ROOT/wallpapers.txt"
+    local wallpaper_dir="$TARGET_HOME/Pictures/Wallpapers"
+
+    if [ ! -f "$wallpaper_list" ]; then
+        log_info "No wallpapers.txt found, skipping wallpaper download"
+        return 0
+    fi
+
+    log_info "Deploying wallpapers..."
+
+    # Ensure wallpaper directory exists
+    if [ "$DRY_RUN" = false ]; then
+        mkdir -p "$wallpaper_dir"
+    else
+        log_cmd "mkdir -p '$wallpaper_dir'"
+    fi
+
+    local downloaded=0
+    local skipped=0
+    local failed=0
+
+    while IFS= read -r url || [ -n "$url" ]; do
+        # Skip empty lines and comments
+        [[ -z "$url" || "$url" == \#* ]] && continue
+
+        # Extract filename from URL
+        local filename
+        filename="$(basename "$url" | sed 's/[?.].*//')"
+
+        # Fallback if no extension in URL
+        if [[ "$filename" != *.* ]]; then
+            filename="${filename}.jpg"
+        fi
+
+        local filepath="$wallpaper_dir/$filename"
+
+        # Check if file already exists
+        if [ -f "$filepath" ]; then
+            log_cmd "Skipping existing: $filename"
+            ((skipped++))
+            continue
+        fi
+
+        # Download the wallpaper
+        log_cmd "curl -sSL '$url' -o '$filepath'"
+        if [ "$DRY_RUN" = false ]; then
+            if curl -fsSL "$url" -o "$filepath"; then
+                log_success "Downloaded: $filename"
+                ((downloaded++))
+            else
+                log_error "Failed to download: $url"
+                ((failed++))
+                # Remove partial file
+                rm -f "$filepath"
+            fi
+        else
+            ((downloaded++))
+        fi
+    done < "$wallpaper_list"
+
+    # Show summary
+    if [ "$DRY_RUN" = false ] && [ "$downloaded" -gt 0 ]; then
+        echo
+        log_info "Wallpapers: $downloaded downloaded, $skipped skipped, $failed failed"
+    fi
+}
+
 # Show deployment status
 show_status() {
     log_info "Deployment status:"
@@ -290,6 +359,7 @@ main() {
             deploy_root
             deploy_config
             deploy_emacs
+            deploy_wallpapers
 
             echo
             log_success "Deployment complete!"
